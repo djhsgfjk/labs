@@ -147,10 +147,9 @@ class Ui_MainWindow(object):
         return alph, original_word, n
 
     def crypt(self):
-        if (len(self.keyBox.text()) > 0):
-            print("start")
-            alph, original_word, n = self.get_values()
-            print(alph, original_word, n)
+        alph, original_word, n = self.get_values()
+        print(alph, original_word, n)
+        if (n > 0 and len(original_word) >0):
             word = list(original_word.upper())
             for i in range(len(word)):
                 # номер буквы в алфавите
@@ -168,10 +167,9 @@ class Ui_MainWindow(object):
 
 
     def decrypt(self):
-        if (len(self.keyBox.text()) > 0):
-            print("start")
-            alph, original_word, n = self.get_values()
-            print(alph, original_word, n)
+        alph, original_word, n = self.get_values()
+        print(alph, original_word, n)
+        if (n > 0 and len(original_word) > 0):
             word = list(original_word.upper())
             for i in range(len(word)):
                 # номер буквы в алфавите
