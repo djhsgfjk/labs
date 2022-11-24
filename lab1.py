@@ -118,7 +118,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Шифрование Цезаря"))
         self.programName.setText(_translate("MainWindow", "Шифрование Цезаря"))
         self.encryptButton.setText(_translate("MainWindow", "Зашифровать"))
         self.decryptButton.setText(_translate("MainWindow", "Расшифровать"))
@@ -139,18 +139,19 @@ class Ui_MainWindow(object):
 
     def get_values(self):
         if self.rus.isChecked():
-            alph = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789"
+            alph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
         else:
-            alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            alph = "abcdefghijklmnopqrstuvwxyz0123456789"
         original_word = self.inputForm.toPlainText()
-        n = int(self.keyBox.text())
+        n = int(self.keyBox.text()) % len(alph)
         return alph, original_word, n
 
     def crypt(self):
         alph, original_word, n = self.get_values()
         print(alph, original_word, n)
+        m = len(alph)
         if (n > 0 and len(original_word) >0):
-            word = list(original_word.upper())
+            word = list(original_word.lower())
             for i in range(len(word)):
                 # номер буквы в алфавите
                 try:
@@ -159,9 +160,9 @@ class Ui_MainWindow(object):
                     word[i] = original_word[i]
                     continue
                 if word[i] == original_word[i]:
-                    word[i] = alph[(ind + n) % len(alph)]
+                    word[i] = alph[(ind + n) % m]
                 else:
-                    word[i] = alph[(ind + n) % len(alph)].lower()
+                    word[i] = alph[(ind + n) % m].upper()
             print(''.join(word))
             self.outputForm.setText(''.join(word))
 
@@ -169,8 +170,9 @@ class Ui_MainWindow(object):
     def decrypt(self):
         alph, original_word, n = self.get_values()
         print(alph, original_word, n)
+        m = len(alph)
         if (n > 0 and len(original_word) > 0):
-            word = list(original_word.upper())
+            word = list(original_word.lower())
             for i in range(len(word)):
                 # номер буквы в алфавите
                 try:
@@ -184,9 +186,9 @@ class Ui_MainWindow(object):
                 elif (ind - n < 0):
                     ind += len(alph)
                 if word[i] == original_word[i]:
-                    word[i] = alph[(ind - n) % len(alph)]
+                    word[i] = alph[(ind - n) % m]
                 else:
-                    word[i] = alph[(ind - n) % len(alph)].lower()
+                    word[i] = alph[(ind - n) % m].upper()
             self.outputForm.setText(''.join(word))
 
 

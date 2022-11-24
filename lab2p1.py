@@ -3,6 +3,9 @@ from PyQt5.QtCore import QMutex
 import re
 
 
+rusAlph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
+engAlph = "abcdefghijklmnopqrstuvwxyz0123456789"
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -84,7 +87,7 @@ class Ui_MainWindow(object):
         self.keyBox.setObjectName("keyBox")
 
         self.keyBox.setMaxLength(2147483647)
-        reg_ex = QtCore.QRegExp("[a-z, A-Z]*")
+        reg_ex = QtCore.QRegExp("[a-zA-Z]*")
         input_validator = QtGui.QRegExpValidator(reg_ex, self.keyBox)
         self.keyBox.setValidator(input_validator)
 
@@ -187,19 +190,19 @@ class Ui_MainWindow(object):
         self.decryptButton.clicked.connect(self.decrypt)
 
     def keyBoxValidation(self):
-        self.keyBox.setText(self.keyBox.text().upper())
+        self.keyBox.setText(self.keyBox.text().lower())
 
     def setEngKey(self):
-        if (len(re.search('[А-Я]*', self.keyBox.text()).group(0)) > 0):
+        if (len(re.search('[а-я]*', self.keyBox.text()).group(0)) > 0):
             self.keyBox.clear()
-        reg_ex = QtCore.QRegExp("[A-Z, a-z]*")
+        reg_ex = QtCore.QRegExp("[A-Za-z]*")
         input_validator = QtGui.QRegExpValidator(reg_ex, self.keyBox)
         self.keyBox.setValidator(input_validator)
 
     def setRusKey(self):
-        if (len(re.search('[A-Z]*', self.keyBox.text()).group(0)) > 0):
+        if (len(re.search('[a-z]*', self.keyBox.text()).group(0)) > 0):
             self.keyBox.clear()
-        reg_ex = QtCore.QRegExp("[А-Я, а-я]*")
+        reg_ex = QtCore.QRegExp("[А-Яа-я]*")
         input_validator = QtGui.QRegExpValidator(reg_ex, self.keyBox)
         self.keyBox.setValidator(input_validator)
 
@@ -210,14 +213,30 @@ class Ui_MainWindow(object):
         if (len(key) <= 0 or len(text) <= 0):
             return
         if self.rus.isChecked():
-            alph = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789"
+            alph = rusAlph
         else:
-            alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            alph = engAlph
 
-        # дальше должен идти алгоритм шифрования
-        print(text)
+        newText = list(text.lower())
+        n = len(text)
+        m = len(key)
+        l = len(alph)
+        j = 0
+        for i in range(n):
+            try:
+                ind = alph.index(newText[i])
+            except:
+                continue
+            step = alph.index(key[j % m])
+            j += 1
+            if newText[i] == text[i]:
+                newText[i] = alph[(ind + step) % l]
+            else:
+                newText[i] = alph[(ind + step) % l].upper()
+
+        print(''.join(newText))
         self.inputForm2.clear()
-        self.inputForm2.appendPlainText(text)
+        self.inputForm2.appendPlainText(''.join(newText))
 
 
     def decrypt(self):
@@ -226,13 +245,29 @@ class Ui_MainWindow(object):
         if (len(key) <= 0 or len(text) <= 0):
             return
         if self.rus.isChecked():
-            alph = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789"
+            alph = rusAlph
         else:
-            alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            alph = engAlph
 
-        #дальше должен идти алгоритм расшифрования
-        print(text)
-        self.outputForm.setText(text)
+        newText = list(text.lower())
+        n = len(text)
+        m = len(key)
+        l = len(alph)
+        j = 0
+        for i in range(n):
+            try:
+                ind = alph.index(newText[i])
+            except:
+                continue
+            step = alph.index(key[j % m])
+            j += 1
+            if newText[i] == text[i]:
+                newText[i] = alph[(ind - step) % l]
+            else:
+                newText[i] = alph[(ind - step) % l].upper()
+
+        print(''.join(newText))
+        self.outputForm.setText(''.join(newText))
 
 
 if __name__ == "__main__":
