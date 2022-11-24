@@ -1,14 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QMutex
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
-import re
 
 
 rusAlph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
 engAlph = "abcdefghijklmnopqrstuvwxyz0123456789"
-# endDict = dict()
-# for letter in engAlph:
-#     endDict[letter] = 0
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -17,7 +14,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.inputForm = QtWidgets.QPlainTextEdit(self.centralwidget)
-        self.inputForm.setGeometry(QtCore.QRect(40, 180, 561, 211))
+        self.inputForm.setGeometry(QtCore.QRect(40, 180, 561, 231))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -29,26 +26,26 @@ class Ui_MainWindow(object):
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.inputLabel.setFont(font)
-        self.inputLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.inputLabel.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.inputLabel.setWordWrap(True)
         self.inputLabel.setObjectName("inputLabel")
         self.keyLabel = QtWidgets.QLabel(self.centralwidget)
-        self.keyLabel.setGeometry(QtCore.QRect(40, 560, 51, 21))
+        self.keyLabel.setGeometry(QtCore.QRect(40, 540, 51, 21))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.keyLabel.setFont(font)
-        self.keyLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.keyLabel.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.keyLabel.setObjectName("keyLabel")
         self.openFromFile = QtWidgets.QPushButton(self.centralwidget)
-        self.openFromFile.setGeometry(QtCore.QRect(450, 440, 151, 28))
+        self.openFromFile.setGeometry(QtCore.QRect(310, 430, 291, 28))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.openFromFile.setFont(font)
         self.openFromFile.setObjectName("openFromFile")
         self.decryptButton = QtWidgets.QPushButton(self.centralwidget)
-        self.decryptButton.setGeometry(QtCore.QRect(40, 500, 561, 28))
+        self.decryptButton.setGeometry(QtCore.QRect(40, 480, 561, 28))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -69,7 +66,7 @@ class Ui_MainWindow(object):
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.langLabel.setFont(font)
-        self.langLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.langLabel.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.langLabel.setObjectName("langLabel")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(40, 90, 251, 41))
@@ -96,44 +93,37 @@ class Ui_MainWindow(object):
         self.rus.setFont(font)
         self.rus.setObjectName("rus")
         self.outputForm = QtWidgets.QTextBrowser(self.centralwidget)
-        self.outputForm.setGeometry(QtCore.QRect(40, 660, 561, 211))
+        self.outputForm.setGeometry(QtCore.QRect(40, 640, 561, 231))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.outputForm.setFont(font)
         self.outputForm.setObjectName("outputForm")
         self.outputLabel = QtWidgets.QLabel(self.centralwidget)
-        self.outputLabel.setGeometry(QtCore.QRect(40, 620, 191, 41))
+        self.outputLabel.setGeometry(QtCore.QRect(40, 600, 191, 41))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.outputLabel.setFont(font)
-        self.outputLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.outputLabel.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.outputLabel.setWordWrap(True)
         self.outputLabel.setObjectName("outputLabel")
         self.inputLabel2 = QtWidgets.QLabel(self.centralwidget)
-        self.inputLabel2.setGeometry(QtCore.QRect(40, 400, 271, 31))
+        self.inputLabel2.setGeometry(QtCore.QRect(40, 430, 271, 31))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.inputLabel2.setFont(font)
-        self.inputLabel2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.inputLabel2.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.inputLabel2.setWordWrap(True)
         self.inputLabel2.setObjectName("inputLabel2")
         self.keyOutputForm = QtWidgets.QTextBrowser(self.centralwidget)
-        self.keyOutputForm.setGeometry(QtCore.QRect(40, 590, 561, 31))
+        self.keyOutputForm.setGeometry(QtCore.QRect(40, 570, 561, 31))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.keyOutputForm.setFont(font)
         self.keyOutputForm.setObjectName("keyOutputForm")
-        self.fileNameOutput = QtWidgets.QTextBrowser(self.centralwidget)
-        self.fileNameOutput.setGeometry(QtCore.QRect(40, 440, 391, 31))
-        font = QtGui.QFont()
-        font.setFamily("Calibri")
-        font.setPointSize(10)
-        self.fileNameOutput.setFont(font)
-        self.fileNameOutput.setObjectName("fileNameOutput")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -198,7 +188,6 @@ class Ui_MainWindow(object):
             filePath = files[0]
             #fileName = re.search(r'[~@#$%^-_(){}\'`\d\w]*\.txt\b', filePath).group(0)
             #print(filePath)
-            self.fileNameOutput.setText(filePath)
 
             text = self.getTextFromFile(filePath)
             if text:
@@ -247,7 +236,7 @@ class Ui_MainWindow(object):
         return ''.join(arr)
 
     def decrypt(self):
-        text = self.inputForm.toPlainText()
+        text = self.inputForm.toPlainText().lower()
         if len(text) <= 0:
             self.showError("Текст не был введен", "Введите текст")
             return

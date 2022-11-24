@@ -152,7 +152,7 @@ class Ui_MainWindow(object):
             alph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
         else:
             alph = "abcdefghijklmnopqrstuvwxyz0123456789"
-        original_word = self.inputForm.toPlainText()
+        original_word = self.inputForm.toPlainText().lower()
         if (len(original_word) <= 0):
             self.showError("Текст не был введен", "Введите текст")
             return
@@ -186,7 +186,7 @@ class Ui_MainWindow(object):
             alph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
         else:
             alph = "abcdefghijklmnopqrstuvwxyz0123456789"
-        original_word = self.inputForm.toPlainText()
+        original_word = self.inputForm.toPlainText().lower()
         if (len(original_word) <= 0):
             self.showError("Текст не был введен", "Введите текст")
             return

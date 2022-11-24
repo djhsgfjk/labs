@@ -1,14 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QMutex
-from PyQt5.QtWidgets import QFileDialog
-import re
-
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+import numpy as np
 
 rusAlph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
 engAlph = "abcdefghijklmnopqrstuvwxyz0123456789"
-# endDict = dict()
-# for letter in engAlph:
-#     endDict[letter] = 0
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -17,7 +14,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.inputForm = QtWidgets.QPlainTextEdit(self.centralwidget)
-        self.inputForm.setGeometry(QtCore.QRect(40, 180, 561, 211))
+        self.inputForm.setGeometry(QtCore.QRect(40, 180, 561, 231))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -33,7 +30,7 @@ class Ui_MainWindow(object):
         self.inputLabel.setWordWrap(True)
         self.inputLabel.setObjectName("inputLabel")
         self.keyLabel = QtWidgets.QLabel(self.centralwidget)
-        self.keyLabel.setGeometry(QtCore.QRect(40, 560, 51, 21))
+        self.keyLabel.setGeometry(QtCore.QRect(40, 530, 51, 21))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -41,14 +38,14 @@ class Ui_MainWindow(object):
         self.keyLabel.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.keyLabel.setObjectName("keyLabel")
         self.openFromFile = QtWidgets.QPushButton(self.centralwidget)
-        self.openFromFile.setGeometry(QtCore.QRect(450, 440, 151, 28))
+        self.openFromFile.setGeometry(QtCore.QRect(310, 430, 291, 28))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.openFromFile.setFont(font)
         self.openFromFile.setObjectName("openFromFile")
         self.decryptButton = QtWidgets.QPushButton(self.centralwidget)
-        self.decryptButton.setGeometry(QtCore.QRect(40, 500, 561, 28))
+        self.decryptButton.setGeometry(QtCore.QRect(40, 480, 561, 28))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -96,14 +93,14 @@ class Ui_MainWindow(object):
         self.rus.setFont(font)
         self.rus.setObjectName("rus")
         self.outputForm = QtWidgets.QTextBrowser(self.centralwidget)
-        self.outputForm.setGeometry(QtCore.QRect(40, 660, 561, 211))
+        self.outputForm.setGeometry(QtCore.QRect(40, 630, 561, 231))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.outputForm.setFont(font)
         self.outputForm.setObjectName("outputForm")
         self.outputLabel = QtWidgets.QLabel(self.centralwidget)
-        self.outputLabel.setGeometry(QtCore.QRect(40, 620, 191, 41))
+        self.outputLabel.setGeometry(QtCore.QRect(40, 590, 191, 41))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -112,7 +109,7 @@ class Ui_MainWindow(object):
         self.outputLabel.setWordWrap(True)
         self.outputLabel.setObjectName("outputLabel")
         self.inputLabel2 = QtWidgets.QLabel(self.centralwidget)
-        self.inputLabel2.setGeometry(QtCore.QRect(40, 400, 271, 31))
+        self.inputLabel2.setGeometry(QtCore.QRect(40, 430, 271, 31))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
@@ -121,23 +118,20 @@ class Ui_MainWindow(object):
         self.inputLabel2.setWordWrap(True)
         self.inputLabel2.setObjectName("inputLabel2")
         self.keyOutputForm = QtWidgets.QTextBrowser(self.centralwidget)
-        self.keyOutputForm.setGeometry(QtCore.QRect(40, 590, 561, 31))
+        self.keyOutputForm.setGeometry(QtCore.QRect(40, 560, 561, 31))
         font = QtGui.QFont()
         font.setFamily("Calibri")
         font.setPointSize(10)
         self.keyOutputForm.setFont(font)
         self.keyOutputForm.setObjectName("keyOutputForm")
-        self.fileNameOutput = QtWidgets.QTextBrowser(self.centralwidget)
-        self.fileNameOutput.setGeometry(QtCore.QRect(40, 440, 391, 31))
-        font = QtGui.QFont()
-        font.setFamily("Calibri")
-        font.setPointSize(10)
-        self.fileNameOutput.setFont(font)
-        self.fileNameOutput.setObjectName("fileNameOutput")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Warning)
+        self.msg.setWindowTitle("Ошибка")
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -161,38 +155,46 @@ class Ui_MainWindow(object):
         self.inputLabel2.setText(_translate("MainWindow", "Расшифровать текст из файла (txt):"))
 
     def addFunctions(self):
-            self._mutex.lock()
-            self.openFromFile.clicked.connect(self.browseFile)
-            self.decryptButton.clicked.connect(self.decrypt)
+        self._mutex.lock()
+        self.openFromFile.clicked.connect(self.browseFile)
+        self.decryptButton.clicked.connect(self.decrypt)
+
+    def showError(self, text1, text2):
+        self.msg.setText(text1)
+        self.msg.setInformativeText(text2)
+        self.msg.exec_()
 
     def getTextFromFile(self, file):
         if not file:
-            return None
-        f = open(file, "r", encoding='utf-8')
+            self.showError("Невозможно открыть файл", "")
+            return ""
+        try:
+            f = open(file, "r", encoding='utf-8')
+        except:
+            self.showError("Невозможно открыть файл", "")
+            return ""
         try:
             text = f.read()
         except:
+            self.showError("Невозможно прочитать файл", "")
             f.close()
-            return None
+            return ""
         f.close()
         return text
 
     def browseFile(self):
         files = QFileDialog.getOpenFileName(self.centralwidget, "Выбрать файл", ".", "Text files (*.txt)")
-        filePath = files[0]
-        #fileName = re.search(r'[~@#$%^-_(){}\'`\d\w]*\.txt\b', filePath).group(0)
-        #print(filePath)
-        self.fileNameOutput.setText(filePath)
+        if len(files[0]) > 0:
+            filePath = files[0]
+            # fileName = re.search(r'[~@#$%^-_(){}\'`\d\w]*\.txt\b', filePath).group(0)
+            # print(filePath)
 
-        text = self.getTextFromFile(filePath)
-        if text:
-            self.inputForm.clear()
-            self.inputForm.appendPlainText(text)
-
+            text = self.getTextFromFile(filePath)
+            if text:
+                self.inputForm.clear()
+                self.inputForm.appendPlainText(text)
 
     def frequencyAnalysis(self, alph, text):
-        if not text:
-            return None
         frequencyDict = dict.fromkeys(list(alph), 0)
         for letter in text:
             if letter in alph:
@@ -202,7 +204,7 @@ class Ui_MainWindow(object):
             frequencyDict[key] = round(frequencyDict[key] / n, 4)
         return frequencyDict
 
-    def maxValueKey(self, d:dict):
+    def maxValueKey(self, d: dict):
         maxV = list(d.values())[0]
         maxK = 0
         for key in d:
@@ -215,26 +217,38 @@ class Ui_MainWindow(object):
     def findKey(self, alph, frequencyDict, textDict):
         l1 = self.maxValueKey(textDict)
         l2 = self.maxValueKey(frequencyDict)
-        return alph.index(l1) - alph.index(l2)
+        return alph.index(l1) - alph.index(l2) % len(alph)
+
 
     def decryptText(self, alph, key, text):
-        arr = list(text.lower())
-        n = len(alph)
-        for i in range(len(arr)):
+        newText = list(text.lower())
+        n = len(text)
+        m = len(key)
+        l = len(alph)
+        j = 0
+        for i in range(n):
             try:
-                ind = alph.index(arr[i])
+                ind = alph.index(newText[i])
             except:
-                arr[i] = text[i]
                 continue
-            if arr[i] == text[i]:
-                arr[i] = alph[(ind - key) % n]
+            step = alph.index(key[j % m])
+            j += 1
+            if newText[i] == text[i]:
+                newText[i] = alph[(ind - step) % l]
             else:
-                arr[i] = alph[(ind - key) % n].upper()
-        return ''.join(arr)
+                newText[i] = alph[(ind - step) % l].upper()
+        return ''.join(newText)
+
+
+    def getKeyLen(self, alph, text):
+        pass
+
 
     def decrypt(self):
-        text = self.inputForm.toPlainText()
-        if not text:
+        text = self.inputForm.toPlainText().lower()
+        n = len(text)
+        if n <= 0:
+            self.showError("Текст не был введен", "Введите текст")
             return
 
         if self.rus.isChecked():
@@ -244,24 +258,59 @@ class Ui_MainWindow(object):
             alph = engAlph
             testText = self.getTextFromFile("eng.txt").lower()
 
+        if len(testText) <= 0:
+            self.showError("Ошибка при чтении файла для составления частотных статистик", "")
+            return
+
         frequencyDict = self.frequencyAnalysis(alph, testText)
         print(frequencyDict)
-        textDict = self.frequencyAnalysis(alph, text.lower())
-        print(textDict)
 
-        key = self.findKey(alph, frequencyDict, textDict)
+        keyLen = self.getKeyLen(alph, text)
+        print(keyLen)
+        arr = []
+        i = 0
+        while i < n:
+            print(i)
+            j = 0
+            while j < keyLen and i < n:
+                s = text[i].lower()
+                if s in alph:
+                    arr.append(s)
+                    j += 1
+                i += 1
+        while j < keyLen:
+            print("j =", j)
+            arr.append(' ')
+            j += 1
+
+        m = len(arr)
+        print(m)
+        arr = np.array(arr)
+        arr.shape = (m // keyLen, keyLen)
+        print(arr)
+
+        key = ""
+        for i in range(keyLen):
+            print(list(arr[:, i]))
+            textDict = self.frequencyAnalysis(alph, list(arr[:, i]))
+            print(textDict)
+            keyPart = self.findKey(alph, frequencyDict, textDict)
+            key += alph[keyPart]
+
+        print(key)
+
         decrypyedText = self.decryptText(alph, key, text)
 
-        self.keyOutputForm.setText(str(key))
+        self.keyOutputForm.setText(key)
         self.outputForm.setText(decrypyedText)
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec())
-

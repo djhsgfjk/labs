@@ -218,7 +218,7 @@ class Ui_MainWindow(object):
 
 
     def crypt(self):
-        text = self.inputForm.toPlainText()
+        text = self.inputForm.toPlainText().lower()
         key = self.keyBox.text()
         if (len(text) <= 0):
             self.showError("Текст не был введен", "Введите текст")
@@ -254,7 +254,7 @@ class Ui_MainWindow(object):
 
 
     def decrypt(self):
-        text = self.inputForm2.toPlainText()
+        text = self.inputForm2.toPlainText().lower()
         key = self.keyBox.text()
         if (len(text) <= 0):
             self.showError("Текст не был введен", "Введите текст")
