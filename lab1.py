@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QMutex
+from PyQt5.QtWidgets import QMessageBox
 
 
 class Ui_MainWindow(object):
@@ -110,6 +111,10 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Warning)
+        self.msg.setWindowTitle("Ошибка")
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -136,60 +141,82 @@ class Ui_MainWindow(object):
         self.encryptButton.clicked.connect(lambda: self.crypt())
         self.decryptButton.clicked.connect(lambda: self.decrypt())
 
+    def showError(self, text1, text2):
+        self.msg.setText(text1)
+        self.msg.setInformativeText(text2)
+        self.msg.exec_()
 
-    def get_values(self):
+
+    def crypt(self):
         if self.rus.isChecked():
             alph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
         else:
             alph = "abcdefghijklmnopqrstuvwxyz0123456789"
         original_word = self.inputForm.toPlainText()
-        n = int(self.keyBox.text()) % len(alph)
-        return alph, original_word, n
+        if (len(original_word) <= 0):
+            self.showError("Текст не был введен", "Введите текст")
+            return
+        try:
+            n = int(self.keyBox.text()) % len(alph)
+        except:
+            self.showError("Ключ не был введен", "Введите ключ")
+            return
 
-    def crypt(self):
-        alph, original_word, n = self.get_values()
         print(alph, original_word, n)
         m = len(alph)
-        if (n > 0 and len(original_word) >0):
-            word = list(original_word.lower())
-            for i in range(len(word)):
-                # номер буквы в алфавите
-                try:
-                    ind = alph.index(word[i])
-                except:
-                    word[i] = original_word[i]
-                    continue
-                if word[i] == original_word[i]:
-                    word[i] = alph[(ind + n) % m]
-                else:
-                    word[i] = alph[(ind + n) % m].upper()
-            print(''.join(word))
-            self.outputForm.setText(''.join(word))
+
+        word = list(original_word.lower())
+        for i in range(len(word)):
+            # номер буквы в алфавите
+            try:
+                ind = alph.index(word[i])
+            except:
+                word[i] = original_word[i]
+                continue
+            if word[i] == original_word[i]:
+                word[i] = alph[(ind + n) % m]
+            else:
+                word[i] = alph[(ind + n) % m].upper()
+        print(''.join(word))
+        self.outputForm.setText(''.join(word))
 
 
     def decrypt(self):
-        alph, original_word, n = self.get_values()
+        if self.rus.isChecked():
+            alph = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789"
+        else:
+            alph = "abcdefghijklmnopqrstuvwxyz0123456789"
+        original_word = self.inputForm.toPlainText()
+        if (len(original_word) <= 0):
+            self.showError("Текст не был введен", "Введите текст")
+            return
+        try:
+            n = int(self.keyBox.text()) % len(alph)
+        except:
+            self.showError("Ключ не был введен", "Введите ключ")
+            return
+
         print(alph, original_word, n)
         m = len(alph)
-        if (n > 0 and len(original_word) > 0):
-            word = list(original_word.lower())
-            for i in range(len(word)):
-                # номер буквы в алфавите
-                try:
-                    ind = alph.index(word[i])
-                except:
-                    word[i] = original_word[i]
-                    continue
-                # проверка на то, чтобы буковка не вылезла из алфавита
-                if (ind - n >= len(alph)):
-                    ind -= len(alph)
-                elif (ind - n < 0):
-                    ind += len(alph)
-                if word[i] == original_word[i]:
-                    word[i] = alph[(ind - n) % m]
-                else:
-                    word[i] = alph[(ind - n) % m].upper()
-            self.outputForm.setText(''.join(word))
+
+        word = list(original_word.lower())
+        for i in range(len(word)):
+            # номер буквы в алфавите
+            try:
+                ind = alph.index(word[i])
+            except:
+                word[i] = original_word[i]
+                continue
+            # проверка на то, чтобы буковка не вылезла из алфавита
+            if (ind - n >= len(alph)):
+                ind -= len(alph)
+            elif (ind - n < 0):
+                ind += len(alph)
+            if word[i] == original_word[i]:
+                word[i] = alph[(ind - n) % m]
+            else:
+                word[i] = alph[(ind - n) % m].upper()
+        self.outputForm.setText(''.join(word))
 
 
 if __name__ == "__main__":

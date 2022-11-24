@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QMutex
+from PyQt5.QtWidgets import QMessageBox
 import re
 
 
@@ -159,6 +160,10 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Warning)
+        self.msg.setWindowTitle("Ошибка")
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -192,6 +197,11 @@ class Ui_MainWindow(object):
     def keyBoxValidation(self):
         self.keyBox.setText(self.keyBox.text().lower())
 
+    def showError(self, text1, text2):
+        self.msg.setText(text1)
+        self.msg.setInformativeText(text2)
+        self.msg.exec_()
+
     def setEngKey(self):
         if (len(re.search('[а-я]*', self.keyBox.text()).group(0)) > 0):
             self.keyBox.clear()
@@ -210,7 +220,11 @@ class Ui_MainWindow(object):
     def crypt(self):
         text = self.inputForm.toPlainText()
         key = self.keyBox.text()
-        if (len(key) <= 0 or len(text) <= 0):
+        if (len(text) <= 0):
+            self.showError("Текст не был введен", "Введите текст")
+            return
+        if (len(key) <= 0):
+            self.showError("Ключ не был введен", "Введите ключ")
             return
         if self.rus.isChecked():
             alph = rusAlph
@@ -242,7 +256,11 @@ class Ui_MainWindow(object):
     def decrypt(self):
         text = self.inputForm2.toPlainText()
         key = self.keyBox.text()
-        if (len(key) <= 0 or len(text) <= 0):
+        if (len(text) <= 0):
+            self.showError("Текст не был введен", "Введите текст")
+            return
+        if (len(key) <= 0):
+            self.showError("Ключ не был введен", "Введите ключ")
             return
         if self.rus.isChecked():
             alph = rusAlph

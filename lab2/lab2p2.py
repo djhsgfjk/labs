@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QMutex
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 import re
 
 
@@ -139,6 +139,10 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Warning)
+        self.msg.setWindowTitle("Ошибка")
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -165,34 +169,44 @@ class Ui_MainWindow(object):
             self.openFromFile.clicked.connect(self.browseFile)
             self.decryptButton.clicked.connect(self.decrypt)
 
+    def showError(self, text1, text2):
+        self.msg.setText(text1)
+        self.msg.setInformativeText(text2)
+        self.msg.exec_()
+
     def getTextFromFile(self, file):
         if not file:
-            return None
-        f = open(file, "r", encoding='utf-8')
+            self.showError("Невозможно открыть файл", "")
+            return ""
+        try:
+            f = open(file, "r", encoding='utf-8')
+        except:
+            self.showError("Невозможно открыть файл", "")
+            return ""
         try:
             text = f.read()
         except:
+            self.showError("Невозможно прочитать файл", "")
             f.close()
-            return None
+            return ""
         f.close()
         return text
 
     def browseFile(self):
         files = QFileDialog.getOpenFileName(self.centralwidget, "Выбрать файл", ".", "Text files (*.txt)")
-        filePath = files[0]
-        #fileName = re.search(r'[~@#$%^-_(){}\'`\d\w]*\.txt\b', filePath).group(0)
-        #print(filePath)
-        self.fileNameOutput.setText(filePath)
+        if len(files[0]) > 0:
+            filePath = files[0]
+            #fileName = re.search(r'[~@#$%^-_(){}\'`\d\w]*\.txt\b', filePath).group(0)
+            #print(filePath)
+            self.fileNameOutput.setText(filePath)
 
-        text = self.getTextFromFile(filePath)
-        if text:
-            self.inputForm.clear()
-            self.inputForm.appendPlainText(text)
+            text = self.getTextFromFile(filePath)
+            if text:
+                self.inputForm.clear()
+                self.inputForm.appendPlainText(text)
 
 
     def frequencyAnalysis(self, alph, text):
-        if not text:
-            return None
         frequencyDict = dict.fromkeys(list(alph), 0)
         for letter in text:
             if letter in alph:
@@ -234,7 +248,8 @@ class Ui_MainWindow(object):
 
     def decrypt(self):
         text = self.inputForm.toPlainText()
-        if not text:
+        if len(text) <= 0:
+            self.showError("Текст не был введен", "Введите текст")
             return
 
         if self.rus.isChecked():
@@ -243,6 +258,10 @@ class Ui_MainWindow(object):
         else:
             alph = engAlph
             testText = self.getTextFromFile("eng.txt").lower()
+
+        if len(testText) <= 0:
+            self.showError("Ошибка при чтении файла для составления частотных статистик", "")
+            return
 
         frequencyDict = self.frequencyAnalysis(alph, testText)
         print(frequencyDict)
