@@ -167,18 +167,18 @@ class Ui_MainWindow(object):
     def getTextFromFile(self, file):
         if not file:
             self.showError("Невозможно открыть файл", "")
-            return ""
+            return None
         try:
             f = open(file, "r", encoding='utf-8')
         except:
             self.showError("Невозможно открыть файл", "")
-            return ""
+            return None
         try:
             text = f.read()
         except:
             self.showError("Невозможно прочитать файл", "")
             f.close()
-            return ""
+            return None
         f.close()
         return text
 
@@ -190,7 +190,7 @@ class Ui_MainWindow(object):
             # print(filePath)
 
             text = self.getTextFromFile(filePath)
-            if text:
+            if not text == None:
                 self.inputForm.clear()
                 self.inputForm.appendPlainText(text)
 
@@ -206,19 +206,13 @@ class Ui_MainWindow(object):
 
     def maxValueKey(self, d: dict):
         maxV = list(d.values())[0]
-        maxK = 0
+        maxK = list(d.keys())[0]
         for key in d:
             if d[key] > maxV:
                 maxV = d[key]
                 maxK = key
         print(maxK)
         return maxK
-
-    def findKey(self, alph, frequencyDict, textDict):
-        l1 = self.maxValueKey(textDict)
-        l2 = self.maxValueKey(frequencyDict)
-        return alph.index(l1) - alph.index(l2) % len(alph)
-
 
     def decryptText(self, alph, key, text):
         newText = list(text.lower())
@@ -239,10 +233,50 @@ class Ui_MainWindow(object):
                 newText[i] = alph[(ind - step) % l].upper()
         return ''.join(newText)
 
+    def deleteExtraSymbols(self, alph, text):
+        newText = ""
+        for i in range(len(text)):
+            if text[i] in alph:
+                newText += text[i]
+        return newText
 
-    def getKeyLen(self, alph, text):
-        pass
+    def getKeyLen(self, text):
 
+        def nod(a, b):
+            while (a == 0 or b == 0):
+                if (a > b):
+                    a %= b
+                else:
+                    b %= a
+            return a + b
+
+        g = []
+        n = len(text)
+        for i in range(0, n - 3):
+            j = text[i + 1:].find(text[i:i + 3])
+            if j > 0:
+                g.append(j + 1)
+        if (len(g) == 0):
+            return n
+        if (len(g) == 1):
+            return g[0]
+        min = nod(g[0], g[1])
+        for i in range(2, len(g)):
+            k = nod(g[i - 1], g[i])
+            if k < min:
+                min = k
+        return min
+
+    def get_all_divisors(self, n):
+        arr = []
+        for i in range(2, n // 2 + 1):
+            if n % i == 0:
+                arr.append(i)
+        return arr
+
+    def grouper(self, iterable, n):
+        args = [iter(iterable)] * n
+        return [''.join(i) for i in zip(*args)]
 
     def decrypt(self):
         text = self.inputForm.toPlainText().lower()
@@ -265,39 +299,34 @@ class Ui_MainWindow(object):
         frequencyDict = self.frequencyAnalysis(alph, testText)
         print(frequencyDict)
 
-        keyLen = self.getKeyLen(alph, text)
+        cleanText = self.deleteExtraSymbols(alph, text)
+        keyLen = self.getKeyLen(cleanText)
         print(keyLen)
-        arr = []
-        i = 0
-        while i < n:
-            print(i)
-            j = 0
-            while j < keyLen and i < n:
-                s = text[i].lower()
-                if s in alph:
-                    arr.append(s)
-                    j += 1
-                i += 1
-        while j < keyLen:
-            print("j =", j)
-            arr.append(' ')
-            j += 1
 
-        m = len(arr)
-        print(m)
-        arr = np.array(arr)
-        arr.shape = (m // keyLen, keyLen)
+        m = len(cleanText) % keyLen
+        if m > 0:
+            cleanText += " " * (keyLen - m)
+        print(len(cleanText), len(cleanText) % keyLen)
+        arr = np.array(list(cleanText))
+        arr.shape = (len(cleanText) // keyLen, keyLen)
         print(arr)
 
         key = ""
+        ind = alph.index(self.maxValueKey(frequencyDict))
         for i in range(keyLen):
             print(list(arr[:, i]))
             textDict = self.frequencyAnalysis(alph, list(arr[:, i]))
             print(textDict)
-            keyPart = self.findKey(alph, frequencyDict, textDict)
+            keyPart = (alph.index(self.maxValueKey(textDict)) - ind) % len(alph)
             key += alph[keyPart]
 
-        print(key)
+        d_arr = self.get_all_divisors(keyLen)
+        for d in d_arr:
+            sp = self.grouper(key, d)
+            if len(set(sp)) == 1:
+                key = sp[0]
+                break
+
 
         decrypyedText = self.decryptText(alph, key, text)
 

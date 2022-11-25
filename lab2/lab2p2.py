@@ -166,12 +166,12 @@ class Ui_MainWindow(object):
 
     def getTextFromFile(self, file):
         if not file:
-            self.showError("Невозможно открыть файл", "")
+            self.showError("Файл не найден", "")
             return ""
         try:
             f = open(file, "r", encoding='utf-8')
         except:
-            self.showError("Невозможно открыть файл", "")
+            self.showError("Файл не найден", "")
             return ""
         try:
             text = f.read()
