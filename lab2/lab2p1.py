@@ -203,7 +203,7 @@ class Ui_MainWindow(object):
         self.msg.exec_()
 
     def setEngKey(self):
-        if (len(re.search('[а-я]*', self.keyBox.text()).group(0)) > 0):
+        if (len(re.search('[а-яё]*', self.keyBox.text()).group(0)) > 0):
             self.keyBox.clear()
         reg_ex = QtCore.QRegExp("[A-Za-z]*")
         input_validator = QtGui.QRegExpValidator(reg_ex, self.keyBox)
@@ -212,7 +212,7 @@ class Ui_MainWindow(object):
     def setRusKey(self):
         if (len(re.search('[a-z]*', self.keyBox.text()).group(0)) > 0):
             self.keyBox.clear()
-        reg_ex = QtCore.QRegExp("[А-Яа-я]*")
+        reg_ex = QtCore.QRegExp("[А-Яа-яё]*")
         input_validator = QtGui.QRegExpValidator(reg_ex, self.keyBox)
         self.keyBox.setValidator(input_validator)
 
