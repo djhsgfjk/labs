@@ -295,7 +295,7 @@ class Ui_MainWindow(object):
         #print(newText)
         self.outputForm4.setText(newText)
         textBinStr = ''.join(f"{ord(i):016b}" for i in newText)
-        self.outputForm_3.setText(newText)
+        self.outputForm_3.setText(textBinStr)
 
 
 
